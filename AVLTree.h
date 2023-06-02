@@ -21,7 +21,8 @@ template <typename K, typename V>
         int getBalance(Node<K,V> *node);
         int getHeight(Node<K,V> *node);
         Node<K,V>* rightRotation(Node<K,V> *y);
-        Node<K,V>* lefttRotation(Node<K,V> *x);
+        Node<K,V>* leftRotation(Node<K,V> *x);
+        void updateHeight(Node<K,V> *node);
         Node<K, V>* searchNode(Node<K, V>* node, const K& key) const;
         void prettyPrint(Node<K,V> *node, int level) const;
         void clear(Node<K,V> *root);
@@ -115,6 +116,33 @@ void AVLTree<K, V>::clear(Node<K, V> *root) {
     if(root->right != nullptr)
         clear(root->right);
     delete root;
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::updateHeight(Node<K, V> *node) {
+    node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
+}
+
+template <typename K, typename V>
+Node<K,V>* AVLTree<K, V> :: rightRotation(Node<K,V> *y) {
+    Node<K,V>* x = y->left;
+    y->left = x->right;
+    x->right = y;
+    updateHeight(y);
+    updateHeight(x);
+
+    return x;
+}
+
+template<typename K, typename V>
+Node<K, V> *AVLTree<K, V>::leftRotation(Node<K, V> *x) {
+    Node<K,V>* y = x->right;
+    x->right = y->left;
+    y->left = x;
+    updateHeight(x);
+    updateHeight(y);
+
+    return y;
 }
 
 
