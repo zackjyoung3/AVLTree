@@ -21,6 +21,7 @@ template <typename K, typename V>
         int getHeight(Node<K,V> *node);
         Node<K,V>* rightRotation(Node<K,V> *y);
         Node<K,V>* lefttRotation(Node<K,V> *x);
+        Node<K, V>* searchNode(Node<K, V>* node, const K& key) const;
         void prettyPrint(Node<K,V> *node, int level) const;
         Node<K,V> *root;
         int numNodes;
@@ -31,8 +32,6 @@ AVLTree<K, V>::AVLTree() {
     root = nullptr;
     numNodes = 0;
 }
-
-
 
 template<typename K, typename V>
 void AVLTree<K, V>:: prettyPrint(Node<K,V> *node, int level) const {
@@ -52,5 +51,45 @@ void AVLTree<K, V>:: prettyPrint(Node<K,V> *node, int level) const {
 
     printTree(node->left, level + 1);
 }
+
+template<typename K, typename V>
+int AVLTree<K, V>::getHeight(Node<K, V> *node) {
+    if(node == nullptr)
+        return 0;
+    return node->h;
+}
+
+
+template<typename K, typename V>
+int AVLTree<K, V>::getBalance(Node<K, V> *node) {
+    if(node == nullptr)
+        return 0;
+    return getHeight(node->left) - getHeight(node->right);
+}
+
+template<typename K, typename V>
+Node<K, V>* AVLTree<K, V>::searchNode(Node<K, V>* node, const K& key) const {
+    if (node == nullptr || node->key == key) {
+        return node;
+    }
+
+    if (key < node->key) {
+        return searchNode(node->left, key);
+    } else {
+        return searchNode(node->right, key);
+    }
+}
+
+
+template<typename K, typename V>
+void AVLTree<K, V>::update(const K& key, const V& value) {
+    Node<K, V>* node = searchNode(root, key);
+    if (node != nullptr) {
+        node->value = value;
+    } else {
+        cout << "Node was not found" << endl;
+    }
+}
+
 
 #endif //AVL_AVLTREE_H
