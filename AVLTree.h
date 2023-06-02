@@ -10,15 +10,17 @@ template <typename K, typename V>
     public:
         AVLTree();
         ~AVLTree();
-        void insert(const K &key, const V &value);
-        void remove(const K &key);
+        Node<K,V>* insert(const K &key, const V &value);
+        Node<K,V>* remove(const K &key);
         void update(const K &key, const V & value);
         void prettyPrint() const {prettyPrint(root, 0);}
         bool empty() const {return (root == nullptr);}
         unsigned size() const {return numNodes;}
     private:
-        void rightRotation(Node<K,V> *y);
-        void lefttRotation(Node<K,V> *x);
+        int getBalance(Node<K,V> *node);
+        int getHeight(Node<K,V> *node);
+        Node<K,V>* rightRotation(Node<K,V> *y);
+        Node<K,V>* lefttRotation(Node<K,V> *x);
         void prettyPrint(Node<K,V> *node, int level) const;
         Node<K,V> *root;
         int numNodes;
@@ -29,6 +31,8 @@ AVLTree<K, V>::AVLTree() {
     root = nullptr;
     numNodes = 0;
 }
+
+
 
 template<typename K, typename V>
 void AVLTree<K, V>:: prettyPrint(Node<K,V> *node, int level) const {
