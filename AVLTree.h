@@ -16,6 +16,7 @@ template <typename K, typename V>
         void prettyPrint() const {prettyPrint(root, 0);}
         bool empty() const {return (root == nullptr);}
         unsigned size() const {return numNodes;}
+        void clear();
     private:
         int getBalance(Node<K,V> *node);
         int getHeight(Node<K,V> *node);
@@ -23,6 +24,7 @@ template <typename K, typename V>
         Node<K,V>* lefttRotation(Node<K,V> *x);
         Node<K, V>* searchNode(Node<K, V>* node, const K& key) const;
         void prettyPrint(Node<K,V> *node, int level) const;
+        void clear(Node<K,V> *root);
         Node<K,V> *root;
         int numNodes;
 };
@@ -89,6 +91,30 @@ void AVLTree<K, V>::update(const K& key, const V& value) {
     } else {
         cout << "Node was not found" << endl;
     }
+}
+
+template<typename K, typename V>
+AVLTree<K, V>::~AVLTree() {
+    clear();
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::clear() {
+    clear(root);
+    root = nullptr;
+    numNodes = 0;
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::clear(Node<K, V> *root) {
+    if(root == nullptr)
+        return;
+
+    if(root->left != nullptr)
+        clear(root->left);
+    if(root->right != nullptr)
+        clear(root->right);
+    delete root;
 }
 
 
