@@ -13,12 +13,12 @@ template <typename K, typename V>
         void insert(const K &key, const V &value);
         Node<K,V>* remove(const K &key);
         void update(const K &key, const V & value);
-        void prettyPrint() const {prettyPrint(root, 0);}
+        void prettyPrint() const;
         bool empty() const {return (root == nullptr);}
         unsigned size() const {return numNodes;}
         void clear();
         friend std::ostream& operator<<(std::ostream& os, const AVLTree& tree) {
-            tree.prettyPrint(tree.root, 0);
+            tree.prettyPrint();
             return os;
         }
     private:
@@ -198,6 +198,14 @@ Node<K, V> *AVLTree<K, V>::insert(Node<K, V> *node, const K &key, const V &value
 
     // only get here if there has been no changes
     return node;
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::prettyPrint() const {
+    if(root != nullptr)
+        prettyPrint(root, 0);
+    else
+        cout << "Empty AVL Tree" << endl;
 }
 
 
