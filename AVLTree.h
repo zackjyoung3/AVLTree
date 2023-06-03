@@ -32,8 +32,8 @@ template <typename K, typename V>
         void prettyPrint(Node<K,V> *node, int level) const;
         void clear(Node<K,V> *root);
         Node<K,V>* remove(Node<K,V> *node, const K &key);
-        void deleteNodeZeroOrOneChild(Node<K,V> *node);
-        void deleteNodeTwoChildren(Node<K,V> *node);
+        Node<K,V>* deleteNodeZeroOrOneChild(Node<K,V> *node);
+        Node<K,V>* deleteNodeTwoChildren(Node<K,V> *node);
         Node<K,V>* getImmediateSuccessor(Node<K,V> *node);
         Node<K,V>* getSmallestInSubtree(Node<K,V> *node);
         Node<K,V> *root;
@@ -219,19 +219,20 @@ void AVLTree<K, V>::remove(const K &key) {
 }
 
 template<typename K, typename V>
-void AVLTree<K, V>::deleteNodeZeroOrOneChild(Node<K, V> *node) {
+Node<K,V>* AVLTree<K, V>::deleteNodeZeroOrOneChild(Node<K, V> *node) {
     Node<K,V> *child = node->left ? node->left : node->right;
 
     // the current node has no children so we can go ahead and delete it
     if(child == nullptr) {
         delete node;
-        node = nullptr;
-        return;
+        return nullptr;
+        cout << "here" << endl;
     }
     // case where we have exactly one child
     // => dereference pointers and copy the contents of the child into the current node
     *node = *child;
     delete child;
+    return node;
 }
 
 // finds the immediate successor of a node
@@ -249,7 +250,7 @@ Node<K, V> *AVLTree<K, V>::getSmallestInSubtree(Node<K, V> *node) {
 }
 
 template<typename K, typename V>
-void AVLTree<K, V>::deleteNodeTwoChildren(Node<K, V> *node) {
+Node<K,V>* AVLTree<K, V>::deleteNodeTwoChildren(Node<K, V> *node) {
     // find the immediate succesor of this node
     Node<K,V> *immediateSuccessor = getImmediateSuccessor(node);
 
@@ -258,6 +259,7 @@ void AVLTree<K, V>::deleteNodeTwoChildren(Node<K, V> *node) {
 
     // now go into the right subtree and delete the immediate successor node
     node->right = remove(node->right, immediateSuccessor->key);
+    return node;
 }
 
 template<typename K, typename V>
@@ -272,9 +274,9 @@ Node<K, V> *AVLTree<K, V>::remove(Node<K,V> *node, const K &key) {
     // case where we have key == node->key and thus, this is the key that is to be deleted
     else {
         if(node->left == nullptr || node->right == nullptr) {
-            deleteNodeZeroOrOneChild(node);
+            node = deleteNodeZeroOrOneChild(node);
         } else {
-            deleteNodeTwoChildren(node);
+            node = deleteNodeTwoChildren(node);
         }
     }
 
