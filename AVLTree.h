@@ -11,7 +11,7 @@ template <typename K, typename V>
         AVLTree();
         ~AVLTree();
         void insert(const K &key, const V &value);
-        Node<K,V>* remove(const K &key);
+        void remove(const K &key);
         void update(const K &key, const V & value);
         void prettyPrint() const;
         bool empty() const {return (root == nullptr);}
@@ -31,6 +31,11 @@ template <typename K, typename V>
         Node<K, V>* searchNode(Node<K, V>* node, const K& key) const;
         void prettyPrint(Node<K,V> *node, int level) const;
         void clear(Node<K,V> *root);
+        Node<K,V>* remove(Node<K,V> *node, const K &key);
+        void deleteNodeZeroOrOneChild(Node<K,V> *node);
+        void deleteNodeTwoChildren(Node<K,V> *node);
+        Node<K,V>* getImmediateSuccessor(Node<K,V> *node);
+        Node<K,V>* getSmallestInSubtree(Node<K,V> *node);
         Node<K,V> *root;
         int numNodes;
 };
@@ -206,6 +211,102 @@ void AVLTree<K, V>::prettyPrint() const {
         prettyPrint(root, 0);
     else
         cout << "Empty AVL Tree" << endl;
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::remove(const K &key) {
+    root = remove(root, key);
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::deleteNodeZeroOrOneChild(Node<K, V> *node) {
+    Node<K,V> *child = node->left ? node->left : node->right;
+
+    // the current node has no children so we can go ahead and delete it
+    if(child == nullptr) {
+        delete node;
+        node = nullptr;
+        return;
+    }
+    // case where we have exactly one child
+    // => dereference pointers and copy the contents of the child into the current node
+    *node = *child;
+    delete child;
+}
+
+// finds the immediate successor of a node
+template<typename K, typename V>
+Node<K, V> *AVLTree<K, V>::getImmediateSuccessor(Node<K, V> *node) {
+    return getSmallestInSubtree(node->right);
+}
+
+// helper method that is used in getImmediateSuccessor
+template<typename K, typename V>
+Node<K, V> *AVLTree<K, V>::getSmallestInSubtree(Node<K, V> *node) {
+    if(node->left == nullptr)
+        return node;
+    return getSmallestInSubtree(node->left);
+}
+
+template<typename K, typename V>
+void AVLTree<K, V>::deleteNodeTwoChildren(Node<K, V> *node) {
+    // find the immediate succesor of this node
+    Node<K,V> *immediateSuccessor = getImmediateSuccessor(node);
+
+    // copy everything from the immediate successor into this node
+    node->copyKeyValue(immediateSuccessor);
+
+    // now go into the right subtree and delete the immediate successor node
+    node->right = remove(node->right, immediateSuccessor->key);
+}
+
+template<typename K, typename V>
+Node<K, V> *AVLTree<K, V>::remove(Node<K,V> *node, const K &key) {
+    // as in insertion, the first part to be performed is standard BST, removal
+    if(node == nullptr)
+        return node;
+    else if(key < node->key)
+        node->left = remove(node->left, key);
+    else if(key > node->key)
+        node->right = remove(node->right, key);
+    // case where we have key == node->key and thus, this is the key that is to be deleted
+    else {
+        if(node->left == nullptr || node->right == nullptr) {
+            deleteNodeZeroOrOneChild(node);
+        } else {
+            deleteNodeTwoChildren(node);
+        }
+    }
+
+    if(node == nullptr)
+        return node;
+
+    // update the height of the current node
+    updateHeight(node);
+
+    // get the balance factor
+    int bf = getBalance(node);
+
+    // now have to handle the cases of if this node has become unbalanced
+
+    // left left case
+    if(bf > 1 && getBalance(node->left) >= 0)
+        return rightRotation(node);
+    // right right case
+    if(bf < -1 && getBalance(node->right) <= 0)
+        return leftRotation(node);
+    // left right case
+    if(bf > 1 && getBalance(node->left) < 0) {
+        node->left = leftRotation(node->left);
+        return rightRotation(node);
+    }
+    // right left case
+    if(bf < -1 && getBalance(node->right) > 0) {
+        node->right = rightRotation(node->right);
+        return leftRotation(node);
+    }
+
+    return node;
 }
 
 

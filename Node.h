@@ -10,6 +10,7 @@ struct Node {
     Node* left;
     Node* right;
     int h;
+    void copyKeyValue(Node* toCopy) {key = toCopy->key; value = toCopy->value;}
 };
 
 
